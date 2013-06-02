@@ -3,8 +3,14 @@ Redmine alerts
 
 Notify developers and managers when spent time reached estimate on task in Redmine_.
 
+.. note::
+
+    This is work in progress. Alerts are not finished.
+
 Installation
 ~~~~~~~~~~~~
+
+Redmine alerts should work with Redmine 1.1+
 
     pip install redmine-alerts
 
@@ -23,7 +29,7 @@ Feel free to omit most of the settings, the script will tell you if anything is 
 
     # ~/.redminerc
     redmine:
-        host: https://example.com
+        url: https://example.com
         api_key: 018e918331a0798bd70fae73e6dd06961b1f0697
         projects:  # skip this item to enable for every project
             - slug: my_super_project_codename
@@ -43,6 +49,7 @@ Feel free to omit most of the settings, the script will tell you if anything is 
         password: password
         port: 25
         ssl: True
+        subject: [{project}] Time exceeded on #{issue.id} {issue.subject}
 
 How it works
 ~~~~~~~~~~~~
@@ -56,3 +63,9 @@ You can customize:
 
     * who else recieves email when time limit is exceeded (`notify`)
     * how much time needs to be spent to trigger notification (`spent_notify`=100%)
+
+
+Development
+~~~~~~~~~~~
+
+    python setup.py test
