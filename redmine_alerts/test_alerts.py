@@ -1,7 +1,8 @@
 # coding: utf-8
 from decimal import Decimal
 import httpretty
-from .api import Redmine
+import pytest
+from .api import Redmine, CustomFieldNotPresent
 
 
 @httpretty.activate
@@ -109,3 +110,20 @@ def test_get_actual_spent_time_child_tasks():
     assert httpretty.HTTPretty.latest_requests[-3].querystring == {'issue_id': [u'1'], 'limit': [u'100'], 'offset': [u'0']}
     assert httpretty.HTTPretty.latest_requests[-2].querystring == {'issue_id': [u'2'], 'limit': [u'100'], 'offset': [u'0']}
     assert httpretty.HTTPretty.latest_requests[-1].querystring == {'issue_id': [u'3'], 'limit': [u'100'], 'offset': [u'0']}
+
+
+def test_get_custom_field_value():
+    redmine = Redmine('http://example.com', 'ThisIsMyToken')
+    issue_with_alert = {'custom_fields': [{'id': 1, 'value': "1"}]}
+    issue_with_false_alert = {'custom_fields': [{'id': 1, 'value': "0"}]}
+    issue_with_empty_alert = {'custom_fields': [{'id': 1}]}
+    issue_with_no_field = {'custom_fields': [{'id': 2}]}
+    issue_with_no_custom_fields = {'id': 1}
+
+    assert redmine.get_custom_field_value(issue_with_alert, 1)
+    assert not redmine.get_custom_field_value(issue_with_false_alert, 1)
+    assert redmine.get_custom_field_value(issue_with_empty_alert, 1) is None
+    with pytest.raises(CustomFieldNotPresent):
+        redmine.get_custom_field_value(issue_with_no_field, 1)
+    with pytest.raises(CustomFieldNotPresent):
+        redmine.get_custom_field_value(issue_with_no_custom_fields, 1)

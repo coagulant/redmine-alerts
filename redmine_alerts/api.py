@@ -89,3 +89,31 @@ class Redmine(object):
                                    for immediate_child in issue.get('children', []))
 
         return self_total_spent + children_total_spent
+
+    def get_custom_field_value(self, issue, field_id):
+        """ Custom fields are exposed differently in REST API.
+
+            ...
+            custom_fields: [..., {
+                id: 12,
+                name: "Alert",
+                value: "1"
+            }, ...],
+            ...
+
+            Raises CustomFieldNotPresent if field_id is not found.
+        """
+        if issue.get('custom_fields'):
+            alert_field = [field for field in issue['custom_fields'] if field['id'] == field_id]
+            if alert_field:
+                return str2bool(alert_field[0].get('value'))
+        raise CustomFieldNotPresent()
+
+
+class CustomFieldNotPresent(Exception):
+    pass
+
+
+def str2bool(string):
+    if string is not None:
+        return string.lower() == '1'

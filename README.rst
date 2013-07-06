@@ -26,6 +26,7 @@ Configuration
 
 Sample config file in yaml.
 Feel free to omit most of the settings, the script will tell you if anything is missing.
+Example of configuration::
 
     # ~/.redminerc
     redmine:
@@ -42,7 +43,7 @@ Feel free to omit most of the settings, the script will tell you if anything is 
             - 1 # development
             - 2 # another activity_id
         spent_notify: 90%  # % the percentage of time exceeded
-        alert_field_id: 12 # ID of boolen custom-fiel
+        alert_field_id: 12 # ID of boolen custom-field
     email:
         host: smpt.company.org
         user: user
@@ -61,8 +62,8 @@ is notified via email that he is now behind the schedule.
 
 You can customize:
 
-    * who else receives email when time limit is exceeded (``notify``)
-    * how much time needs to be spent to trigger notification (``spent_notify``=100%)
+* who else receives email when time limit is exceeded (``notify``)
+* how much time needs to be spent to trigger notification (``spent_notify=100%``)
 
 
 Development
