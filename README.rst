@@ -4,13 +4,12 @@ Redmine alerts
 Notify developers and managers when spent time reached estimate on task in Redmine_.
 
 .. note::
-
     This is work in progress. Alerts are not finished.
 
 Installation
 ~~~~~~~~~~~~
 
-Redmine alerts should work with Redmine 1.1+
+Redmine alerts should work with Redmine 1.1+::
 
     pip install redmine-alerts
 
@@ -19,12 +18,13 @@ Configure settings (see below).
 Add custom boolean field to issues. It's needed to track sent emails.
 
 Add to cron::
+
     redmine-alerts
 
 Configuration
 ~~~~~~~~~~~~~
 
-Sample config file in yaml_.
+Sample config file in yaml.
 Feel free to omit most of the settings, the script will tell you if anything is missing.
 
     # ~/.redminerc
@@ -38,7 +38,7 @@ Feel free to omit most of the settings, the script will tell you if anything is 
                 - manager2@company.org
         notify:
             - director@company.org
-        activity:
+        activities:
             - 1 # development
             - 2 # another activity_id
         spent_notify: 90%  # % the percentage of time exceeded
@@ -61,11 +61,12 @@ is notified via email that he is now behind the schedule.
 
 You can customize:
 
-    * who else recieves email when time limit is exceeded (`notify`)
-    * how much time needs to be spent to trigger notification (`spent_notify`=100%)
+    * who else receives email when time limit is exceeded (``notify``)
+    * how much time needs to be spent to trigger notification (``spent_notify``=100%)
 
 
 Development
 ~~~~~~~~~~~
+::
 
     python setup.py test

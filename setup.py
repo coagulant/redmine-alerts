@@ -33,8 +33,8 @@ setup(
     dependency_links=(
        'https://github.com/gabrielfalcao/HTTPretty/archive/master.zip#egg=httpretty-0.6',
     ),
-    install_requires=['PyYAML>=3.10', 'outbox>=0.1.5', 'hammock>=0.2.4'],
-    tests_require=['mock', 'pytest', 'httpretty==0.6'],
+    install_requires=['PyYAML>=3.10', 'outbox>=0.1.5', 'hammock>=0.2.4', 'six'],
+    tests_require=['mock', 'pytest', 'httpretty==0.6', 'coverage'],
     cmdclass={'test': PyTest},
     classifiers=[
         'Development Status :: 4 - Beta',

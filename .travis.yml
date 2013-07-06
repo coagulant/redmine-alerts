@@ -1,0 +1,14 @@
+language: python
+python:
+  - 2.6
+  - 2.7
+  - 3.3
+  - pypy
+install:
+  - python setup.py develop
+  - pip install coveralls
+script:
+  - coverage run --source=redmine_alerts setup.py test
+  - coverage report -m
+after_success:
+  - coveralls
