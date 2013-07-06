@@ -2,7 +2,8 @@
 from decimal import Decimal
 import httpretty
 import pytest
-from .api import Redmine, CustomFieldNotPresent
+from redmine_alerts.api import Redmine
+from redmine_alerts.exceptions import CustomFieldNotPresent
 
 
 @httpretty.activate

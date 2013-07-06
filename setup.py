@@ -14,6 +14,9 @@ class PyTest(TestCommand):
         errno = pytest.main(self.test_args)
         sys.exit(errno)
 
+install_requires = ['PyYAML>=3.10', 'outbox>=0.1.5', 'hammock>=0.2.4', 'six']
+if sys.version_info[:1] < (2, 7):
+    install_requires.append('ordereddict')
 
 setup(
     name='redmine-alerts',
@@ -33,7 +36,7 @@ setup(
     dependency_links=(
        'https://github.com/gabrielfalcao/HTTPretty/archive/master.zip#egg=httpretty-0.6',
     ),
-    install_requires=['PyYAML>=3.10', 'outbox>=0.1.5', 'hammock>=0.2.4', 'six'],
+    install_requires=install_requires,
     tests_require=['mock', 'pytest', 'httpretty==0.6.0', 'coverage'],
     cmdclass={'test': PyTest},
     classifiers=[
