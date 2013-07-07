@@ -3,6 +3,9 @@ from decimal import Decimal
 from hammock import Hammock
 import six
 
+from .exceptions import CustomFieldNotPresent
+from .utils import str2bool
+
 
 class RestApiWithGenerator(Hammock):
     """ Redmine API wrapper with generator for pagination handling
@@ -58,6 +61,9 @@ class Redmine(object):
     def __init__(self, url, api_key):
         self.api = RestApiWithGenerator(url, headers={'Content-Type': 'application/json', 'X-Redmine-API-Key': api_key})
 
+    def __getattr__(self, name):
+        return getattr(self.api, name)
+
     def get_actual_estimate(self, issue):
         """ Get real estimate of an issue.
 
@@ -110,10 +116,3 @@ class Redmine(object):
         raise CustomFieldNotPresent()
 
 
-class CustomFieldNotPresent(Exception):
-    pass
-
-
-def str2bool(string):
-    if string is not None:
-        return string.lower() == '1'

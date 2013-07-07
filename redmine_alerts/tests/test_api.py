@@ -1,13 +1,13 @@
 # coding: utf-8
 from decimal import Decimal
-import httpretty
+
 import pytest
-from redmine_alerts.api import Redmine
+
 from redmine_alerts.exceptions import CustomFieldNotPresent
+from .fixtures import *
 
 
-@httpretty.activate
-def test_api_wrapper_generator():
+def test_api_wrapper_generator(httpretty, redmine):
     httpretty.register_uri(httpretty.GET,
                            "http://example.com/groups.json",
                            responses=[
@@ -15,27 +15,25 @@ def test_api_wrapper_generator():
                                httpretty.Response('{"groups":[{"id":2, "name":"Robochicken"}], "total_count": 2, "offset": 1, "limit": 1}'),
                            ],
                            content_type="application/json")
-    redmine = Redmine('http://example.com', 'ThisIsMyToken')
     entries = redmine.api.groups.GET(params={'limit': 1})
 
     assert list(entries) == [{'id': 1, 'name': 'Pokemon'}, {'id': 2, 'name': 'Robochicken'}]
     assert httpretty.HTTPretty.last_request.querystring == {'limit': ['1'], 'offset': ['1']}
 
 
-@httpretty.activate
-def test_api_wrapper_single():
+
+def test_api_wrapper_single(httpretty, redmine):
     httpretty.register_uri(httpretty.GET,
                            "http://example.com/issues/1.json",
                            body='{"issue":{"id": 1, "title": "Some issue"}}',
                            content_type="application/json")
-    redmine = Redmine('http://example.com', 'ThisIsMyToken')
     issue = redmine.api.issues(1).GET(single_attr='issue')
 
     assert issue == {"id": 1, "title": "Some issue"}
 
 
-@httpretty.activate
-def test_get_actual_estimate():
+
+def test_get_actual_estimate(httpretty, redmine):
     httpretty.register_uri(httpretty.GET, "http://example.com/issues/1.json",
                            body='{"issue":{"estimated_hours": 5}}', content_type="application/json")
     httpretty.register_uri(httpretty.GET, "http://example.com/issues/2.json",
@@ -46,7 +44,6 @@ def test_get_actual_estimate():
                            body='{"issue":{"parent":{"id": 1}, "estimated_hours": 7}}', content_type="application/json")
     httpretty.register_uri(httpretty.GET, "http://example.com/issues/5.json",
                            body='{"issue":{}}', content_type="application/json")
-    redmine = Redmine('http://example.com', 'ThisIsMyToken')
 
     assert redmine.get_actual_estimate(redmine.api.issues('1').GET(single_attr='issue')) == Decimal(5), \
         'If issue has its own estimate, return it'
@@ -58,14 +55,12 @@ def test_get_actual_estimate():
         'No estimate'
 
 
-@httpretty.activate
-def test_get_actual_spent_time_no_filter():
+def test_get_actual_spent_time_no_filter(httpretty, redmine):
     httpretty.register_uri(httpretty.GET, "http://example.com/issues/1.json",
                            body='{"issue":{"id": 1}}', content_type="application/json")
     httpretty.register_uri(httpretty.GET, "http://example.com/time_entries.json",
                            body='{"time_entries":[{"issue_id": 1, "hours": 3.14}]}', content_type="application/json")
 
-    redmine = Redmine('http://example.com', 'ThisIsMyToken')
     issue = redmine.api.issues('1').GET(single_attr='issue', params={'include': 'children'})
 
     assert redmine.get_actual_spent_time(issue) == Decimal('3.14'), \
@@ -75,8 +70,8 @@ def test_get_actual_spent_time_no_filter():
     assert httpretty.HTTPretty.latest_requests[-1].querystring == {'issue_id': [u'1'], 'limit': [u'100'], 'offset': [u'0']}
 
 
-@httpretty.activate
-def test_get_actual_spent_time_filter():
+
+def test_get_actual_spent_time_filter(httpretty, redmine):
     httpretty.register_uri(httpretty.GET, "http://example.com/issues/1.json",
                            body='{"issue":{"id": 1}}', content_type="application/json")
     httpretty.register_uri(httpretty.GET, "http://example.com/time_entries.json",
@@ -84,15 +79,14 @@ def test_get_actual_spent_time_filter():
                                 '{"issue_id": 1, "hours": 13, "activity": {"id": 7, "name": "test"}}]}',
                            content_type="application/json")
 
-    redmine = Redmine('http://example.com', 'ThisIsMyToken')
     issue = redmine.api.issues('1').GET(single_attr='issue', params={'include': 'children'})
 
     assert redmine.get_actual_spent_time(issue, activities_ids=[7]) == Decimal(13), \
         'Issue with no subissues, activity filter by activity_id=7'
 
 
-@httpretty.activate
-def test_get_actual_spent_time_child_tasks():
+
+def test_get_actual_spent_time_child_tasks(httpretty, redmine):
     httpretty.register_uri(httpretty.GET, "http://example.com/issues/1.json",
                            body='{"issue":{"id": 1, "children": [{"id": 2, "children": [{"id": 3}]}]}}', content_type="application/json")
     httpretty.register_uri(httpretty.GET, "http://example.com/time_entries.json",
@@ -102,7 +96,6 @@ def test_get_actual_spent_time_child_tasks():
                                httpretty.Response('{"time_entries":[{"hours": 3}]}')],
                            content_type="application/json")
 
-    redmine = Redmine('http://example.com', 'ThisIsMyToken')
     issue = redmine.api.issues('1').GET(single_attr='issue', params={'include': 'children'})
 
     assert redmine.get_actual_spent_time(issue) == Decimal(6), \
@@ -113,8 +106,7 @@ def test_get_actual_spent_time_child_tasks():
     assert httpretty.HTTPretty.latest_requests[-1].querystring == {'issue_id': [u'3'], 'limit': [u'100'], 'offset': [u'0']}
 
 
-def test_get_custom_field_value():
-    redmine = Redmine('http://example.com', 'ThisIsMyToken')
+def test_get_custom_field_value(redmine):
     issue_with_alert = {'custom_fields': [{'id': 1, 'value': "1"}]}
     issue_with_false_alert = {'custom_fields': [{'id': 1, 'value': "0"}]}
     issue_with_empty_alert = {'custom_fields': [{'id': 1}]}
