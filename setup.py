@@ -37,7 +37,7 @@ setup(
        'https://github.com/gabrielfalcao/HTTPretty/archive/master.zip#egg=httpretty-0.6',
     ),
     install_requires=install_requires,
-    tests_require=['mock', 'pytest', 'httpretty==0.6.0', 'coverage'],
+    tests_require=['mock', 'pytest', 'pytest-capturelog', 'httpretty==0.6.0', 'coverage'],
     cmdclass={'test': PyTest},
     classifiers=[
         'Development Status :: 4 - Beta',

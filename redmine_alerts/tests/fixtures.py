@@ -1,4 +1,5 @@
 # coding: utf-8
+import logging
 import httpretty as http_pretty
 import pytest
 
@@ -16,3 +17,10 @@ def httpretty(request):
 @pytest.fixture
 def redmine():
     return Redmine('http://example.com', 'ThisIsMyToken')
+
+
+@pytest.fixture
+def redminelog(caplog):
+    caplog.setLevel(logging.CRITICAL)
+    caplog.setLevel(logging.DEBUG, logger='redmine-alerts')
+    return caplog

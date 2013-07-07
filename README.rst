@@ -28,29 +28,30 @@ Sample config file in yaml.
 Feel free to omit most of the settings, the script will tell you if anything is missing.
 Example of configuration::
 
-    # ~/.redminerc
+    ~/.alertsrc
     redmine:
         url: https://example.com
         api_key: 018e918331a0798bd70fae73e6dd06961b1f0697
+    overtime:
+        alert_field_id: 12  # ID of boolean custom-field
         projects:  # skip this item to enable for every project
-            - slug: my_super_project_codename
+            - id: 42
               notify:
                 - manager1@company.org
                 - manager2@company.org
-        notify:
-            - director@company.org
         activities:
             - 1 # development
             - 2 # another activity_id
         spent_notify: 90%  # % the percentage of time exceeded
-        alert_field_id: 12 # ID of boolen custom-field
+        notify:
+            - director@company.org
     email:
-        host: smpt.company.org
+        host: "smpt.company.org"
         user: user
         password: password
         port: 25
         ssl: True
-        subject: [{project}] Time exceeded on #{issue.id} {issue.subject}
+        subject: "[{project}] Time exceeded on #{issue.id} {issue.subject}"
 
 How it works
 ~~~~~~~~~~~~
