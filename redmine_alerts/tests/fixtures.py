@@ -21,6 +21,6 @@ def redmine():
 
 @pytest.fixture
 def redminelog(caplog):
-    caplog.setLevel(logging.CRITICAL)
+    caplog.setLevel(logging.CRITICAL, logger='requests')
     caplog.setLevel(logging.DEBUG, logger='redmine-alerts')
     return caplog

@@ -40,13 +40,13 @@ Example of configuration::
                 - manager1@company.org
                 - manager2@company.org
         activities:
-            - 1 # development
-            - 2 # another activity_id
-        spent_notify: 90%  # % the percentage of time exceeded
-        notify:
+            - 1  # development
+            - 2  # another activity_id
+        spent_notify_ratio: 110%  # % the percentage of time exceeded
+        notify:  # for all projects
             - director@company.org
     email:
-        host: "smpt.company.org"
+        host: "smtp.company.org"
         user: user
         password: password
         port: 25
@@ -72,3 +72,7 @@ Development
 ::
 
     python setup.py test
+
+
+.. _Redmine_: http://www.redmine.org/
+.. _time_entries: http://www.redmine.org/projects/redmine/wiki/Rest_TimeEntries

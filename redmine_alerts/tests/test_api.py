@@ -21,7 +21,6 @@ def test_api_wrapper_generator(httpretty, redmine):
     assert httpretty.HTTPretty.last_request.querystring == {'limit': ['1'], 'offset': ['1']}
 
 
-
 def test_api_wrapper_single(httpretty, redmine):
     httpretty.register_uri(httpretty.GET,
                            "http://example.com/issues/1.json",
@@ -30,7 +29,6 @@ def test_api_wrapper_single(httpretty, redmine):
     issue = redmine.api.issues(1).GET(single_attr='issue')
 
     assert issue == {"id": 1, "title": "Some issue"}
-
 
 
 def test_get_actual_estimate(httpretty, redmine):
@@ -70,7 +68,6 @@ def test_get_actual_spent_time_no_filter(httpretty, redmine):
     assert httpretty.HTTPretty.latest_requests[-1].querystring == {'issue_id': [u'1'], 'limit': [u'100'], 'offset': [u'0']}
 
 
-
 def test_get_actual_spent_time_filter(httpretty, redmine):
     httpretty.register_uri(httpretty.GET, "http://example.com/issues/1.json",
                            body='{"issue":{"id": 1}}', content_type="application/json")
@@ -83,7 +80,6 @@ def test_get_actual_spent_time_filter(httpretty, redmine):
 
     assert redmine.get_actual_spent_time(issue, activities_ids=[7]) == Decimal(13), \
         'Issue with no subissues, activity filter by activity_id=7'
-
 
 
 def test_get_actual_spent_time_child_tasks(httpretty, redmine):

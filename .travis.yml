@@ -5,7 +5,6 @@ python:
   - 3.3
   - pypy
 install:
-  - python setup.py develop
   - pip install coveralls
 script:
   - coverage run --source=redmine_alerts setup.py test

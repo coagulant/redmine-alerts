@@ -1,4 +1,6 @@
 # coding: utf-8
+from __future__ import division
+from decimal import Decimal
 import logging
 from redmine_alerts.cli import AlreadyProcessed
 
@@ -62,4 +64,28 @@ class Overtime(AlertPlugin):
                 log.debug('[skipped, projects] Issue #%s is not in monitored projects %s', issue['id'], monitored_projects)
                 return False
 
-        return True
+        issue['estimate'] = estimate
+        return issue
+
+    def process(self, issue):
+        """ Check if issue is now in overtime, act accordingly
+
+            Get actual spent time for issue (taking into account activity type, nested tasks)
+        """
+        spent = self.api.get_actual_spent_time(issue, activities_ids=self.config.get('activities'))
+        logging.debug("Ticket #%s (%s) Spent Hours: %-4s Estimated_Hours: %-4s",
+                      issue['id'], issue['project']['name'], spent, issue['estimate'])
+
+        k = Decimal(self.config.get('spent_notify_ratio', '100%').replace('%', ''))
+        if spent * (100 / k) > issue['estimate']:
+            log.info('[OVERTIME] Ticket #%s (%s) is now in overtime', issue['id'], issue['project']['name'])
+            self.send_notifications(issue)
+            self.mark_processed(issue)
+            return True
+        return False
+
+    def send_notifications(self, issue):
+        pass
+
+    def mark_processed(self, issue):
+        pass

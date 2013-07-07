@@ -14,9 +14,11 @@ class PyTest(TestCommand):
         errno = pytest.main(self.test_args)
         sys.exit(errno)
 
+
 install_requires = ['PyYAML>=3.10', 'outbox>=0.1.5', 'hammock>=0.2.4', 'six']
 if sys.version_info[:1] < (2, 7):
     install_requires.append('ordereddict')
+
 
 setup(
     name='redmine-alerts',
