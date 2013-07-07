@@ -82,7 +82,7 @@ def test_issue_process_is_overtime(overtime, httpretty, redminelog):
             'name': 'Project'
         }
     }
-    assert overtime.process(overtime_issue)
+    assert overtime.check_overtime(overtime_issue)
     assert '[OVERTIME]' in redminelog.records()[-1].getMessage()
 
 
@@ -97,5 +97,17 @@ def test_issue_process_no_overtime(overtime, httpretty, redminelog):
             'name': 'Project'
         }
     }
-    assert not overtime.process(no_overtime_issue)
+    assert not overtime.check_overtime(no_overtime_issue)
     assert '[OVERTIME]' not in redminelog.text()
+
+
+def test_get_recipients(overtime, httpretty):
+    httpretty.register_uri(httpretty.GET, "http://example.com/users/2.json",
+                           body='{"user":{"id": 2, "mail": "some@developer.org"}}', content_type="application/json")
+
+    overtime.config.notify = ['company@director.org']
+    overtime.config.projects = [{'id': 42, 'notify': ['project@manager.org', 'team@lead.org']}]
+
+    issue = {'id': 1, 'project': {'id': 42}, 'assigned_to': {'id': 2}}
+    assert overtime.get_recipients(issue) == set(['project@manager.org', 'team@lead.org',
+                                                  'company@director.org', 'some@developer.org'])

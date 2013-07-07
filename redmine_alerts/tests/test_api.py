@@ -116,3 +116,11 @@ def test_get_custom_field_value(redmine):
         redmine.get_custom_field_value(issue_with_no_field, 1)
     with pytest.raises(CustomFieldNotPresent):
         redmine.get_custom_field_value(issue_with_no_custom_fields, 1)
+
+
+def test_get_assignee_email(httpretty, redmine):
+    httpretty.register_uri(httpretty.GET, "http://example.com/users/2.json",
+                           body='{"user":{"id": 2, "mail": "foo@bar.baz"}}', content_type="application/json")
+
+    assert redmine.get_assignee_email(issue={"id": 1, "assigned_to": {"id": 2}}) == 'foo@bar.baz'
+    assert redmine.get_assignee_email(issue={"id": 1}) is None

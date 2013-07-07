@@ -67,7 +67,7 @@ class Overtime(AlertPlugin):
         issue['estimate'] = estimate
         return issue
 
-    def process(self, issue):
+    def check_overtime(self, issue):
         """ Check if issue is now in overtime, act accordingly
 
             Get actual spent time for issue (taking into account activity type, nested tasks)
@@ -79,13 +79,16 @@ class Overtime(AlertPlugin):
         k = Decimal(self.config.get('spent_notify_ratio', '100%').replace('%', ''))
         if spent * (100 / k) > issue['estimate']:
             log.info('[OVERTIME] Ticket #%s (%s) is now in overtime', issue['id'], issue['project']['name'])
-            self.send_notifications(issue)
-            self.mark_processed(issue)
             return True
         return False
 
-    def send_notifications(self, issue):
-        pass
+    def get_recipients(self, issue):
+        global_receivers = self.config.get('notify', [])
+        project_receivers = [project.get('notify', []) for project in self.config.get('projects', [])
+                             if project['id'] == issue['project']['id']][0]
+        issue_assignee = [self.api.get_assignee_email(issue)]
+
+        return set(filter(None, global_receivers + project_receivers + issue_assignee))
 
     def mark_processed(self, issue):
         pass

@@ -115,4 +115,12 @@ class Redmine(object):
                 return str2bool(alert_field[0].get('value'))
         raise CustomFieldNotPresent()
 
+    def get_assignee_email(self, issue):
+        """ Every user has email, so let's fetch it """
+        assigned_to = issue.get('assigned_to')
+        if not assigned_to:
+            return None
+
+        return self.api.users(assigned_to['id']).GET(single_attr='user').get('mail')
+
 
