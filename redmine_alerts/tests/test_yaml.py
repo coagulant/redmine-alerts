@@ -8,7 +8,7 @@ def test_yaml_attrdict():
 
     assert config.redmine.url == 'https://example.com'
     assert config.overtime.projects[0]['id'] == 42
-    assert config.email.ssl is True
+    assert config.email.host == 'smtp.localhost'
 
 
 def test_dump():

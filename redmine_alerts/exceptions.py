@@ -8,3 +8,7 @@ class ImproperlyConfigured(Exception):
 
 class CustomFieldNotPresent(Exception):
     pass
+
+
+class StopPollingApi(Exception):
+    pass

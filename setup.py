@@ -1,6 +1,7 @@
 import sys
 from setuptools.command.test import test as TestCommand
 from setuptools import setup
+import redmine_alerts
 
 
 class PyTest(TestCommand):
@@ -15,14 +16,14 @@ class PyTest(TestCommand):
         sys.exit(errno)
 
 
-install_requires = ['PyYAML>=3.10', 'outbox>=0.1.5', 'hammock>=0.2.4', 'six']
+install_requires = ['PyYAML>=3.10', 'outbox>=0.1.5', 'hammock>=0.2.4', 'six', 'docopt>=0.6.1']
 if sys.version_info[:1] < (2, 7):
     install_requires.append('ordereddict')
 
 
 setup(
     name='redmine-alerts',
-    version='0.1dev',
+    version=redmine_alerts.__version__,
     packages=['redmine_alerts'],
     url='http://github.com/coagulant/redmine-alerts',
     license='MIT',
@@ -39,7 +40,7 @@ setup(
        'https://github.com/gabrielfalcao/HTTPretty/archive/master.zip#egg=httpretty-0.6',
     ),
     install_requires=install_requires,
-    tests_require=['mock', 'pytest', 'pytest-capturelog', 'httpretty==0.6.0', 'coverage'],
+    tests_require=['mock', 'pytest', 'pytest-capturelog', 'httpretty==0.6', 'coverage'],
     cmdclass={'test': PyTest},
     classifiers=[
         'Development Status :: 4 - Beta',

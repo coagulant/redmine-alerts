@@ -1,10 +1,15 @@
 # coding: utf-8
 from __future__ import division
-from decimal import Decimal
+from collections import namedtuple
 import logging
-from redmine_alerts.cli import AlreadyProcessed
+from decimal import Decimal
+from outbox import Outbox, Email
+from .exceptions import StopPollingApi
 
 log = logging.getLogger('redmine-alerts')
+
+
+Notification = namedtuple('Notification', ['subject', 'message', 'recipients'])
 
 
 class AlertPlugin(object):
@@ -16,6 +21,25 @@ class AlertPlugin(object):
 
 
 class Overtime(AlertPlugin):
+
+    def run(self):
+        """ Single round of processing redmine feed.
+
+            Does the whole work of a plugin
+        """
+        template = open(self.config.message_template).read()
+        for time_entry in self.api.time_entries.GET():
+            try:
+                issue = self.should_process(time_entry)
+                if issue:
+                    if self.check_overtime(issue):
+                        yield Notification(
+                            subject=self.config.subject.format(issue=issue),
+                            message=template.format(issue=issue, url=self.api.url),
+                            recipients=self.get_recipients(issue)
+                        )
+            except StopPollingApi:
+                break
 
     def is_processed(self, time_entry):
         # TODO: GH-1 Workaround time_entries sorting
@@ -31,10 +55,11 @@ class Overtime(AlertPlugin):
             4) alert has not been sent
             5) issue is in tracked projects
         """
+        assert type(time_entry) is dict
 
         # 1) issue is not already processed
         if self.is_processed(time_entry):
-            raise AlreadyProcessed
+            raise StopPollingApi
 
         # 2) activity is involved in alert time tracking
         if 'activities' in self.config:
@@ -79,6 +104,7 @@ class Overtime(AlertPlugin):
         k = Decimal(self.config.get('spent_notify_ratio', '100%').replace('%', ''))
         if spent * (100 / k) > issue['estimate']:
             log.info('[OVERTIME] Ticket #%s (%s) is now in overtime', issue['id'], issue['project']['name'])
+            issue['spent'] = spent
             return True
         return False
 
@@ -92,3 +118,15 @@ class Overtime(AlertPlugin):
 
     def mark_processed(self, issue):
         pass
+
+
+class SMTPPlugin(object):
+    def __init__(self, config):
+        self.outbox = Outbox(server=config.host,
+                             username=config.user,
+                             password=config.password,
+                             port=config.get('port', 25),
+                             mode=config.get('mode', None))
+
+    def send(self, subject, message, recipients):
+        self.outbox.send(Email(subject=subject, html_body=message, recipients=recipients))

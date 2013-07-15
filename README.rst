@@ -1,7 +1,7 @@
 Redmine alerts
 --------------
 
-Notify developers and managers when spent time reached estimate on task in Redmine_.
+Notify developers and managers when spent time reached estimate on task in `Redmine`_.
 
 .. note::
     This is work in progress. Alerts are not finished.
@@ -15,7 +15,7 @@ Redmine alerts should work with Redmine 1.1+::
 
 Configure settings (see below).
 
-Add custom boolean field to issues. It's needed to track sent emails.
+Add custom boolean field to issues. It's required to track sent emails.
 
 Add to cron::
 
@@ -45,13 +45,14 @@ Example of configuration::
         spent_notify_ratio: 110%  # % the percentage of time exceeded
         notify:  # for all projects
             - director@company.org
+        subject: "[{issue.project.name}] Time exceeded on #{issue.id} {issue.subject}"
+        message_template: redmine_alerts/templates/email_template.html
     email:
-        host: "smtp.company.org"
+        host: "smtp.localhost"
         user: user
         password: password
         port: 25
-        ssl: True
-        subject: "[{project}] Time exceeded on #{issue.id} {issue.subject}"
+        mode: SSL
 
 How it works
 ~~~~~~~~~~~~
@@ -74,5 +75,5 @@ Development
     python setup.py test
 
 
-.. _Redmine_: http://www.redmine.org/
+.. _Redmine: http://www.redmine.org/
 .. _time_entries: http://www.redmine.org/projects/redmine/wiki/Rest_TimeEntries

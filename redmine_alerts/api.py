@@ -4,6 +4,7 @@ from hammock import Hammock
 import six
 
 from .exceptions import CustomFieldNotPresent
+from redmine_alerts.yml import AttrDict
 from .utils import str2bool
 
 
@@ -31,7 +32,7 @@ class RestApiWithGenerator(Hammock):
         if method == 'get' and not single_attr:
             return self._paginator(method, self._url(*args), **kwargs)
         else:
-            return self._session.request(method, self._url(*args), **kwargs).json()[single_attr]
+            return AttrDict(self._session.request(method, self._url(*args), **kwargs).json()[single_attr])
 
     def _paginator(self, method, uri, **kwargs):
         kwargs.setdefault('params', {})
@@ -44,7 +45,7 @@ class RestApiWithGenerator(Hammock):
 
     def _page_request(self, method, uri, limit, offset, **kwargs):
         kwargs['params'].update({'limit': limit, 'offset': offset})
-        response = self._session.request(method, uri, **kwargs).json()
+        response = AttrDict(self._session.request(method, uri, **kwargs).json())
         # in case it's not paginated result
         if not 'total_count' in response:
             return next(six.itervalues(response)), None
@@ -59,6 +60,7 @@ class RestApiWithGenerator(Hammock):
 class Redmine(object):
 
     def __init__(self, url, api_key):
+        self.url = url
         self.api = RestApiWithGenerator(url, headers={'Content-Type': 'application/json', 'X-Redmine-API-Key': api_key})
 
     def __getattr__(self, name):
@@ -85,7 +87,7 @@ class Redmine(object):
 
             Total by issue is filtered via /time_entries.json?issue_id=<issue_id>
             Info on subtasks are obtained via /issues/<issue_id>.json?include=children
-            Unfortunately, has O(2(n+1)) requests per ticket, n - child tickets due to API limitations.
+            Unfortunately, has O(2(n+1)) requests per ticket (n := child tickets) due to API limitations.
         """
         issue_time_entries = self.api.time_entries.GET(params={'issue_id': issue['id']})
         self_total_spent = sum((Decimal(str(entry['hours'])) for entry in issue_time_entries

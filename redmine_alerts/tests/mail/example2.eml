@@ -1,0 +1,8 @@
+<p>
+    This is alert from spent time watcher. Time consumption concern.<br>
+    Ticket <a href="http://example.com/issues/2">It works</a>
+</p>
+<p>
+    Spent time: 100<br>
+    Estimated time: 80
+</p>
