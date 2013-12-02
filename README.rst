@@ -57,15 +57,15 @@ Example of configuration::
 How it works
 ~~~~~~~~~~~~
 
-The script hits Redmine API, querying latest `time_entries`_ since last fetch.
-For each new logged interval it finds a corresponding issue and checks
-if time spent has reached the estimated time. In that case the assignee
+The script hits Redmine API, querying most recent `time_entries`_ since last fetch.
+For each new time interval it finds a corresponding issue and checks
+if time spent on issue has reached the estimated time. In that case the assignee
 is notified via email that he is now behind the schedule.
 
 You can customize:
 
 * who else receives email when time limit is exceeded (``notify``)
-* how much time needs to be spent to trigger notification (``spent_notify=100%``)
+* how much time needs to be spent to trigger notification (``spent_notify_ratio=100%``)
 
 
 Development

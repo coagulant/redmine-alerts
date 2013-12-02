@@ -61,7 +61,10 @@ class Redmine(object):
 
     def __init__(self, url, api_key):
         self.url = url
-        self.api = RestApiWithGenerator(url, headers={'Content-Type': 'application/json', 'X-Redmine-API-Key': api_key})
+        self.api = RestApiWithGenerator(url, headers={
+            'Content-Type': 'application/json',
+            'X-Redmine-API-Key': api_key
+        })
 
     def __getattr__(self, name):
         return getattr(self.api, name)
@@ -82,7 +85,7 @@ class Redmine(object):
     def get_actual_spent_time(self, issue, activities_ids=None):
         """ Get real amount of time spent on issue.
 
-            * Filter only activities marked as relevant in settings (all are ok by defalut)
+            * Filter only activities marked as relevant in settings (all are ok by default)
             * Sum up spent_time for all subtasks
 
             Total by issue is filtered via /time_entries.json?issue_id=<issue_id>
