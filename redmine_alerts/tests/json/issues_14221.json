@@ -1,0 +1,44 @@
+{
+    "issue": {
+        "id": 14221,
+        "project": {
+            "id": 48,
+            "name": "FC Project"
+        },
+        "tracker": {
+            "id": 4,
+            "name": "Задача"
+        },
+        "status": {
+            "id": 7,
+            "name": "Resolved"
+        },
+        "priority": {
+            "id": 4,
+            "name": "Нормальный"
+        },
+        "author": {
+            "id": 6,
+            "name": "Павел Воробьев"
+        },
+        "fixed_version": {
+            "id": 304,
+            "name": "Milestone - 2"
+        },
+        "subject": "Test ticket #2",
+        "description": "",
+        "done_ratio": 0,
+        "estimated_hours": 8,
+        "spent_hours": 9.29,
+        "custom_fields": [
+            {
+                "id": 12,
+                "name": "Alert",
+                "value": "0"
+            }
+        ],
+        "created_on": "2013-11-29T11:27:42Z",
+        "updated_on": "2013-12-31T12:08:37Z",
+        "closed_on": "2013-12-31T12:08:37Z"
+    }
+}

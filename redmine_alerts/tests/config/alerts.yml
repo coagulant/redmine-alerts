@@ -1,0 +1,11 @@
+redmine:
+    url: https://example.com
+    api_key: 018e918331a0798bd70fae73e6dd06961b1f0697
+overtime:
+    alert_field_id: 12
+    notify:
+        - info@futurecolors.ru
+email:
+    host: "smtp.localhost"
+    user: user
+    password: password

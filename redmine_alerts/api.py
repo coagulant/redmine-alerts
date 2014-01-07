@@ -17,7 +17,7 @@ class RestApiWithGenerator(Hammock):
             >> groups = api.groups.GET()
             /groups.json
             >> entries = api.issues.GET(params={'query_id': '42'})
-            /issues.json?query_id=42
+            /issues_14221.json?query_id=42
             >> entry = api.issues('2').GET()
             /issues/2.json
 
@@ -127,5 +127,3 @@ class Redmine(object):
             return None
 
         return self.api.users(assigned_to['id']).GET(single_attr='user').get('mail')
-
-

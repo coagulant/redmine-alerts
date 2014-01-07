@@ -3,6 +3,7 @@ from __future__ import division
 from collections import namedtuple
 import logging
 from decimal import Decimal
+import itertools
 from outbox import Outbox, Email
 from .exceptions import StopPollingApi
 
@@ -27,17 +28,22 @@ class Overtime(AlertPlugin):
 
             Does the whole work of a plugin
         """
-        template = open(self.config.message_template).read()
+        default_template_path = 'redmine_alerts/templates/email_template.html'  # TODO: move defaults to yml
+        template = open(self.config.get('message_template', default_template_path)).read()
+        subject = self.config.get('subject', "[{issue.project.name}] Time exceeded on #{issue.id} {issue.subject}")
         for time_entry in self.api.time_entries.GET():
             try:
                 issue = self.should_process(time_entry)
-                if issue:
-                    if self.check_overtime(issue):
-                        yield Notification(
-                            subject=self.config.subject.format(issue=issue),
-                            message=template.format(issue=issue, url=self.api.url),
-                            recipients=self.get_recipients(issue)
-                        )
+                if issue and self.check_overtime(issue):
+                    recipients = self.get_recipients(issue)
+                    if not recipients:
+                        log.debug('No recipients configured for issue #%s', issue['id'])
+                        continue
+                    yield Notification(
+                        subject=subject.format(issue=issue),
+                        message=template.format(issue=issue, url=self.api.url),
+                        recipients=recipients
+                    )
             except StopPollingApi:
                 break
 
@@ -110,8 +116,9 @@ class Overtime(AlertPlugin):
 
     def get_recipients(self, issue):
         global_receivers = self.config.get('notify', [])
-        project_receivers = [project.get('notify', []) for project in self.config.get('projects', [])
-                             if project['id'] == issue['project']['id']][0]
+        project_receivers = list(itertools.chain.from_iterable(
+            [project.get('notify', []) for project in self.config.get('projects', [])
+             if project['id'] == issue['project']['id']]))  # flat list
         issue_assignee = [self.api.get_assignee_email(issue)]
 
         return set(filter(None, global_receivers + project_receivers + issue_assignee))

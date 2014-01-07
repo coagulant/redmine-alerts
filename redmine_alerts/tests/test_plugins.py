@@ -108,8 +108,10 @@ def test_issue_process_no_overtime(overtime, httpretty, redminelog):
 
 
 def test_get_recipients(overtime, httpretty):
-    httpretty.register_uri(httpretty.GET, "http://example.com/users/2.json",
-                           body='{"user":{"id": 2, "mail": "some@developer.org"}}', content_type="application/json")
+    httpretty.register_uri(httpretty.GET,
+                           "http://example.com/users/2.json",
+                           body='{"user":{"id": 2, "mail": "some@developer.org"}}',
+                           content_type="application/json")
 
     overtime.config.notify = ['company@director.org']
     overtime.config.projects = [{'id': 42, 'notify': ['project@manager.org', 'team@lead.org']}]
@@ -117,6 +119,9 @@ def test_get_recipients(overtime, httpretty):
     issue = {'id': 1, 'project': {'id': 42}, 'assigned_to': {'id': 2}}
     assert overtime.get_recipients(issue) == set(['project@manager.org', 'team@lead.org',
                                                   'company@director.org', 'some@developer.org'])
+
+    overtime.config.projects = []
+    assert overtime.get_recipients(issue) == set(['company@director.org', 'some@developer.org'])
 
 
 def test_run(overtime_full, httpretty):
