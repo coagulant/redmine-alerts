@@ -1,4 +1,5 @@
 # coding: utf-8
+import codecs
 from os.path import abspath, join, dirname
 from mock import patch
 from redmine_alerts.core import watcher
@@ -20,11 +21,11 @@ def test_sanity_of_watcher(outbox, httpretty):
 
     httpretty.register_uri(httpretty.GET,
                            "https://example.com/time_entries.json?limit=100&offset=0",
-                           body=open(join(path_to_json, 'time_entries.json')).read(),
+                           body=codecs.open(join(path_to_json, 'time_entries.json')).read(),
                            content_type="application/json")
     httpretty.register_uri(httpretty.GET,
                            "https://example.com/issues/14221.json?include=children",
-                           body=open(join(path_to_json, 'issues_14221.json')).read(),
+                           body=codecs.open(join(path_to_json, 'issues_14221.json')).read(),
                            content_type="application/json")
     config = AttrDict.from_yaml(path_to_yml)  # TODO: fixture
     watcher(config)
