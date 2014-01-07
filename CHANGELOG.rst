@@ -1,6 +1,6 @@
 Changelog
 ~~~~~~~~~
 
-0.1 (2013-07-??)
+0.1 (2014-01-07)
 ----------------
-* Initial release
+* Initial release, not for production
