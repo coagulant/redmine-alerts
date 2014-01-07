@@ -92,7 +92,8 @@ class Overtime(AlertPlugin):
         if 'projects' in self.config:
             monitored_projects = [project['id'] for project in self.config.projects]
             if issue['project']['id'] not in monitored_projects:
-                log.debug('[skipped, projects] Issue #%s is not in monitored projects %s', issue['id'], monitored_projects)
+                log.debug('[skipped, projects] Issue #%s is not in monitored projects %s',
+                          issue['id'], monitored_projects)
                 return False
 
         issue['estimate'] = estimate

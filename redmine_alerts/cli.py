@@ -10,6 +10,7 @@ Options:
   --version                 Show version.
 """
 from docopt import docopt
+
 import redmine_alerts
 from redmine_alerts.core import watcher
 from redmine_alerts.yml import AttrDict

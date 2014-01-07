@@ -8,13 +8,14 @@ from .fixtures import *
 
 
 def test_api_wrapper_generator(httpretty, redmine):
-    httpretty.register_uri(httpretty.GET,
-                           "http://example.com/groups.json",
-                           responses=[
-                               httpretty.Response('{"groups":[{"id":1, "name":"Pokemon"}], "total_count": 2, "offset": 0, "limit": 1}'),
-                               httpretty.Response('{"groups":[{"id":2, "name":"Robochicken"}], "total_count": 2, "offset": 1, "limit": 1}'),
-                           ],
-                           content_type="application/json")
+    httpretty.register_uri(
+        httpretty.GET,
+        "http://example.com/groups.json",
+        responses=[
+            httpretty.Response('{"groups":[{"id":1, "name":"Pokemon"}], "total_count": 2, "offset": 0, "limit": 1}'),
+            httpretty.Response('{"groups":[{"id":2, "name":"Robochicken"}], "total_count": 2, "offset": 1,"limit": 1}'),
+        ],
+        content_type="application/json")
     entries = redmine.api.groups.GET(params={'limit': 1})
 
     assert list(entries) == [{'id': 1, 'name': 'Pokemon'}, {'id': 2, 'name': 'Robochicken'}]
@@ -63,9 +64,10 @@ def test_get_actual_spent_time_no_filter(httpretty, redmine):
 
     assert redmine.get_actual_spent_time(issue) == Decimal('3.14'), \
         'Issue with no subissues, no activity filters'
-    assert len(httpretty.HTTPretty.latest_requests) == 2
-    assert httpretty.HTTPretty.latest_requests[-2].querystring == {'include': [u'children']}
-    assert httpretty.HTTPretty.latest_requests[-1].querystring == {'issue_id': [u'1'], 'limit': [u'100'], 'offset': [u'0']}
+    performed_requests = httpretty.HTTPretty.latest_requests
+    assert len(performed_requests) == 2
+    assert performed_requests[-2].querystring == {'include': [u'children']}
+    assert performed_requests[-1].querystring == {'issue_id': [u'1'], 'limit': [u'100'], 'offset': [u'0']}
 
 
 def test_get_actual_spent_time_filter(httpretty, redmine):
@@ -84,7 +86,8 @@ def test_get_actual_spent_time_filter(httpretty, redmine):
 
 def test_get_actual_spent_time_child_tasks(httpretty, redmine):
     httpretty.register_uri(httpretty.GET, "http://example.com/issues/1.json",
-                           body='{"issue":{"id": 1, "children": [{"id": 2, "children": [{"id": 3}]}]}}', content_type="application/json")
+                           body='{"issue":{"id": 1, "children": [{"id": 2, "children": [{"id": 3}]}]}}',
+                           content_type="application/json")
     httpretty.register_uri(httpretty.GET, "http://example.com/time_entries.json",
                            responses=[
                                httpretty.Response('{"time_entries":[{"hours": 1}]}'),
@@ -96,10 +99,11 @@ def test_get_actual_spent_time_child_tasks(httpretty, redmine):
 
     assert redmine.get_actual_spent_time(issue) == Decimal(6), \
         'Issue with subissues, no filters'
-    assert len(httpretty.HTTPretty.latest_requests) == 4
-    assert httpretty.HTTPretty.latest_requests[-3].querystring == {'issue_id': [u'1'], 'limit': [u'100'], 'offset': [u'0']}
-    assert httpretty.HTTPretty.latest_requests[-2].querystring == {'issue_id': [u'2'], 'limit': [u'100'], 'offset': [u'0']}
-    assert httpretty.HTTPretty.latest_requests[-1].querystring == {'issue_id': [u'3'], 'limit': [u'100'], 'offset': [u'0']}
+    performed_requests = httpretty.HTTPretty.latest_requests
+    assert len(performed_requests) == 4
+    assert performed_requests[-3].querystring == {'issue_id': [u'1'], 'limit': [u'100'], 'offset': [u'0']}
+    assert performed_requests[-2].querystring == {'issue_id': [u'2'], 'limit': [u'100'], 'offset': [u'0']}
+    assert performed_requests[-1].querystring == {'issue_id': [u'3'], 'limit': [u'100'], 'offset': [u'0']}
 
 
 def test_get_custom_field_value(redmine):

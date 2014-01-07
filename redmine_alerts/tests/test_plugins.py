@@ -1,6 +1,5 @@
 from decimal import Decimal
-import logging
-from mock import patch, MagicMock
+from mock import patch
 import pytest
 
 from redmine_alerts.plugins import Overtime, Notification, SMTPPlugin
@@ -21,9 +20,10 @@ def overtime_full(redmine):
 # assert overtime.should_process(already_processed)
 
 def test_should_not_process_ignored_activity(overtime, httpretty, redminelog):
-    httpretty.register_uri(httpretty.GET, "http://example.com/time_entries.json",
-                           body='{"time_entries":[{"id": 1, "issue": {"id": 1}, "activity": {"id": 15, "name": "Drink"}}]}',
-                           content_type="application/json")
+    httpretty.register_uri(
+        httpretty.GET, "http://example.com/time_entries.json",
+        body='{"time_entries":[{"id": 1, "issue": {"id": 1}, "activity": {"id": 15, "name": "Drink"}}]}',
+        content_type="application/json")
 
     overtime.config.activities = [14, 16]
     assert not overtime.should_process(next(overtime.api.time_entries.GET()))
@@ -46,7 +46,7 @@ def test_should_not_process_alert_already_sent(overtime, httpretty, redminelog):
                            body='{"time_entries":[{"id": 1, "issue": {"id": 1}}]}',
                            content_type="application/json")
     httpretty.register_uri(httpretty.GET, "http://example.com/issues/1.json",
-                           body='{"issue":{"id": 1, "estimated_hours": 2, "custom_fields": [{"id": 12, "value": "1"}]}}',
+                           body='{"issue":{"id": 1, "estimated_hours": 2, "custom_fields": [{"id": 12, "value":"1"}]}}',
                            content_type="application/json")
     assert not overtime.should_process(next(overtime.api.time_entries.GET()))
     assert '[skipped, sent]' in redminelog.records()[0].getMessage()
@@ -56,9 +56,10 @@ def test_should_not_process_ignored_project(overtime, httpretty, redminelog):
     httpretty.register_uri(httpretty.GET, "http://example.com/time_entries.json",
                            body='{"time_entries":[{"id": 1, "issue": {"id": 1}}]}',
                            content_type="application/json")
-    httpretty.register_uri(httpretty.GET, "http://example.com/issues/1.json",
-                           body='{"issue":{"id": 1, "estimated_hours": 2, "project": {"id": 3}, "custom_fields": [{"id": 12}]}}',
-                           content_type="application/json")
+    httpretty.register_uri(
+        httpretty.GET, "http://example.com/issues/1.json",
+        body='{"issue":{"id": 1, "estimated_hours": 2, "project": {"id": 3}, "custom_fields": [{"id": 12}]}}',
+        content_type="application/json")
 
     overtime.config.projects = [{'id': 1}, {'id': 2}]
     assert not overtime.should_process(next(overtime.api.time_entries.GET()))
@@ -79,7 +80,8 @@ def test_should_process(overtime, httpretty, redminelog):
 def test_issue_process_is_overtime(overtime, httpretty, redminelog):
     httpretty.register_uri(httpretty.GET, "http://example.com/time_entries.json",
                            body='{"time_entries":[{"issue_id": 1, "hours": 3.14},'
-                                                 '{"issue_id": 1, "hours": 2.71}]}', content_type="application/json")
+                                                 '{"issue_id": 1, "hours": 2.71}]}',  # noqa
+                           content_type="application/json")
 
     overtime_issue = {
         'id': 1,
@@ -95,7 +97,8 @@ def test_issue_process_is_overtime(overtime, httpretty, redminelog):
 def test_issue_process_no_overtime(overtime, httpretty, redminelog):
     httpretty.register_uri(httpretty.GET, "http://example.com/time_entries.json",
                            body='{"time_entries":[{"issue": {"id": 1}, "hours": 3.14},'
-                                                 '{"issue": {"id": 1}, "hours": 2.71}]}', content_type="application/json")
+                                                 '{"issue": {"id": 1}, "hours": 2.71}]}',  # noqa
+                           content_type="application/json")
     no_overtime_issue = {
         'id': 1,
         'estimate': Decimal('500'),
@@ -126,21 +129,23 @@ def test_get_recipients(overtime, httpretty):
 
 def test_run(overtime_full, httpretty):
     """ Some kind of integration test"""
-    httpretty.register_uri(httpretty.GET, "http://example.com/time_entries.json",
-                           responses=[
-                               httpretty.Response('{"time_entries":[{"issue": {"id": 1}, "hours": 12, "activity": {"id": 1}},'
-                                                 '{"issue": {"id": 2}, "hours": 100, "activity": {"id": 1}}]}'),
-                               httpretty.Response('{"time_entries":[{"hours": 12, "activity": {"id": 1}}]}'),
-                               httpretty.Response('{"time_entries":[{"hours": 100, "activity": {"id": 1}}]}')],
-                           content_type="application/json")
+    httpretty.register_uri(
+        httpretty.GET,
+        "http://example.com/time_entries.json",
+        responses=[
+            httpretty.Response('{"time_entries":[{"issue": {"id": 1}, "hours": 12, "activity": {"id": 1}},'
+                               '{"issue": {"id": 2}, "hours": 100, "activity": {"id": 1}}]}'),
+            httpretty.Response('{"time_entries":[{"hours": 12, "activity": {"id": 1}}]}'),
+            httpretty.Response('{"time_entries":[{"hours": 100, "activity": {"id": 1}}]}')],
+        content_type="application/json")
     httpretty.register_uri(httpretty.GET, "http://example.com/issues/1.json",
-                           body='{"issue":{"id": 1, "estimated_hours": 10.5, "custom_fields": [{"id": 12}],'
-                                           '"subject": "Hello, world", "project": {"id": 42, "name": "FOO"}}}',
-                           content_type="application/json")
+        body='{"issue":{"id": 1, "estimated_hours": 10.5, "custom_fields": [{"id": 12}],'
+                       '"subject": "Hello, world", "project": {"id": 42, "name": "FOO"}}}',  # noqa
+        content_type="application/json")
     httpretty.register_uri(httpretty.GET, "http://example.com/issues/2.json",
-                           body='{"issue":{"id": 2, "estimated_hours": 80, "custom_fields": [{"id": 12}],'
-                                           '"subject": "It works", "project": {"id": 42, "name": "FOO"}}}',
-                           content_type="application/json")
+        body='{"issue":{"id": 2, "estimated_hours": 80, "custom_fields": [{"id": 12}],'
+                       '"subject": "It works", "project": {"id": 42, "name": "FOO"}}}',  # noqa
+        content_type="application/json")
 
     expected_notifications = [
         Notification(subject='[FOO] Time exceeded on #1 Hello, world',
@@ -157,5 +162,10 @@ def test_run(overtime_full, httpretty):
 def test_smtp(plugin_mock):
     plugin = SMTPPlugin(AttrDict.from_yaml('.alertsrc').email)
     plugin.send('Hello', 'Dolly!\nYarr!', recipients=['admin@localhost'])
-    plugin_mock.assert_called_once_with(AttrDict([('host', 'smtp.localhost'), ('user', 'user'), ('password', 'password'), ('port', 25), ('mode', 'SSL')]))
+    plugin_mock.assert_called_once_with(
+        AttrDict([('host', 'smtp.localhost'),
+                  ('user', 'user'),
+                  ('password', 'password'),
+                  ('port', 25),
+                  ('mode', 'SSL')]))
     plugin_mock().send.assert_called_once_with('Hello', 'Dolly!\nYarr!', recipients=['admin@localhost'])
