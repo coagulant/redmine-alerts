@@ -36,9 +36,6 @@ setup(
             'redmine-alerts = redmine_alerts.cli:main',
         ],
     },
-    dependency_links=(
-       'https://github.com/gabrielfalcao/HTTPretty/archive/master.zip#egg=httpretty-0.6',
-    ),
     install_requires=install_requires,
     tests_require=['mock', 'pytest', 'pytest-capturelog', 'httpretty==0.6', 'coverage'],
     cmdclass={'test': PyTest},
