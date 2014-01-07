@@ -1,6 +1,7 @@
 # coding: utf-8
 from __future__ import division
 from collections import namedtuple
+import json
 import logging
 from decimal import Decimal
 import itertools
@@ -39,6 +40,7 @@ class Overtime(AlertPlugin):
                     if not recipients:
                         log.debug('No recipients configured for issue #%s', issue['id'])
                         continue
+                    self.mark_issue_as_processed(issue)
                     yield Notification(
                         subject=subject.format(issue=issue),
                         message=template.format(issue=issue, url=self.api.url),
@@ -105,8 +107,8 @@ class Overtime(AlertPlugin):
             Get actual spent time for issue (taking into account activity type, nested tasks)
         """
         spent = self.api.get_actual_spent_time(issue, activities_ids=self.config.get('activities'))
-        logging.debug("Ticket #%s (%s) Spent Hours: %-4s Estimated_Hours: %-4s",
-                      issue['id'], issue['project']['name'], spent, issue['estimate'])
+        log.debug("Ticket #%s (%s) Spent Hours: %-4s Estimated_Hours: %-4s",
+                  issue['id'], issue['project']['name'], spent, issue['estimate'])
 
         k = Decimal(self.config.get('spent_notify_ratio', '100%').replace('%', ''))
         if spent * (100 / k) > issue['estimate']:
@@ -124,8 +126,15 @@ class Overtime(AlertPlugin):
 
         return set(filter(None, global_receivers + project_receivers + issue_assignee))
 
-    def mark_processed(self, issue):
-        pass
+    def mark_issue_as_processed(self, issue):
+        log.debug('Marking issue #%s alert' % issue['id'])
+        return self.api.issues(issue['id']).PUT(data=json.dumps({
+            'issue': {"custom_fields": [
+                {"value": "1",
+                 "id": self.config.alert_field_id,
+                 "name": "alert"}
+            ]}
+        }), single_attr='issue')
 
 
 class SMTPPlugin(object):

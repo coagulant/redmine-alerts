@@ -27,6 +27,10 @@ def test_sanity_of_watcher(outbox, httpretty):
                            "https://example.com/issues/14221.json?include=children",
                            body=codecs.open(join(path_to_json, 'issues_14221.json')).read(),
                            content_type="application/json")
+    httpretty.register_uri(httpretty.PUT,
+                           "https://example.com/issues/14221.json",
+                           body='{"issue": {"id": "14221"}}',
+                           content_type="application/json")
     config = AttrDict.from_yaml(path_to_yml)  # TODO: fixture
     watcher(config)
     assert outbox.call_count == 1

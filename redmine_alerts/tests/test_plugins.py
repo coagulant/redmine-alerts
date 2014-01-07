@@ -146,6 +146,10 @@ def test_run(overtime_full, httpretty):
         body='{"issue":{"id": 2, "estimated_hours": 80, "custom_fields": [{"id": 12}],'
                        '"subject": "It works", "project": {"id": 42, "name": "FOO"}}}',  # noqa
         content_type="application/json")
+    httpretty.register_uri(httpretty.PUT, "http://example.com/issues/1.json", '{"issue": {"id": "1"}}',
+                           content_type="application/json")
+    httpretty.register_uri(httpretty.PUT, "http://example.com/issues/2.json", '{"issue": {"id": "2"}}',
+                           content_type="application/json")
 
     expected_notifications = [
         Notification(subject='[FOO] Time exceeded on #1 Hello, world',
